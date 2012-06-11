@@ -1,0 +1,7 @@
+<% if @errors.empty? %>
+    <% flash[:notice] = t(:you_have_been_subscribed) %>
+<% else %>
+    <% flash[:error] = t(:you_have_been_subscribed) %>
+    $.modal('<div id="modal-notice"><h1>ERROR:</h1> <%= @errors.join(' / ') %></div>', modal_opts);
+<% end %>
+

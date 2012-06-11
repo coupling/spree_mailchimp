@@ -1,21 +1,16 @@
-SpreeMailchimp
+MailChimp extension for Spree
 ==============
 
-Introduction goes here.
-
+Based on the work of Sam Beam and Bastian Schnurle.
 
 Example
 =======
 
-Example goes here.
+Include this code in your view:
 
-Testing
--------
+    <% form_for :user, :url => :subscriptions do |f| %>
+      <%= text_field_tag :email, t('enter_your_email'), :class => 'email' %>
+      <%= submit_tag t('subscribe') %>
+    <% end %>
 
-Be sure to bundle your dependencies and then create a dummy test app for the specs to run against.
-
-    $ bundle
-    $ bundle exec rake test app
-    $ bundle exec rspec spec
-
-Copyright (c) 2012 [name of extension creator], released under the New BSD License
+Copyright (c) 2012 Martijn Lafeber, released under the New BSD License

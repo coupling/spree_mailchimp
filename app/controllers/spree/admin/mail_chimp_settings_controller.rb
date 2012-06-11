@@ -1,4 +1,4 @@
-class Spree::Admin::MailChimpSettingsController < Admin::BaseController
+class Spree::Admin::MailChimpSettingsController < Spree::Admin::BaseController
   before_filter :load_config
   before_filter :load_preferences, :only => [:edit, :show]
 
@@ -11,6 +11,9 @@ class Spree::Admin::MailChimpSettingsController < Admin::BaseController
   def update
     params.each do |name, value|
       next unless @config.has_preference? name
+      value = true if value == '1'
+      value = false if value == '0'
+      puts "value = #{value}"
       @config[name] = value
     end
 

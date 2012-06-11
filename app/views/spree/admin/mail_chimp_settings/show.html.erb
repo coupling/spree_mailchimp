@@ -6,7 +6,7 @@
   <% @preferences.each do |key| %>
   <tr>
     <th scope="row"><%= t(key) %>:</th>
-    <td><%= Spree::Config[key] %></td>
+    <td><%= @config[key] %></td>
   </tr>
   <% end %>
 </table>

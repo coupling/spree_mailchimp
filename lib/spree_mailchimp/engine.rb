@@ -1,10 +1,14 @@
-module SpreeMailchimp
+module Spree::MailChimp
+end
+module SpreeMailChimpExtension
   class Engine < Rails::Engine
     engine_name 'spree_mailchimp'
 
-    config.autoload_paths += %W(#{config.root}/lib)
+    initializer "spree.active_shipping.preferences", :before => :load_config_initializers do |app|
+      Spree::MailChimp::Config = Spree::MailChimpConfiguration.new
+    end
 
-    Spree::MailChimp::CONFIG = Spree::MailChimpConfiguration.new unless defined?(Spree::MailChimp::CONFIG)
+    config.autoload_paths += %W(#{config.root}/lib)
 
     # use rspec for tests
     config.generators do |g|
@@ -15,16 +19,11 @@ module SpreeMailchimp
       Dir.glob(File.join(File.dirname(__FILE__), "../../app/**/*_decorator*.rb")) do |c|
         Rails.configuration.cache_classes ? require(c) : load(c)
       end
-    end
 
-    Spree::BaseController.class_eval do
-        helper MailChimpHelper
-    end
-
-    UsersController.send(:include, MailChimpSync::Sync)
-
-    User.class_eval do
-        attr_accessible :is_mail_list_subscriber
+      #loads application's deface view overrides
+      Dir.glob File.expand_path("../../app/overrides/*.rb", __FILE__) do |c|
+        Rails.application.config.cache_classes ? require(c) : load(c)
+      end
     end
 
     config.to_prepare &method(:activate).to_proc

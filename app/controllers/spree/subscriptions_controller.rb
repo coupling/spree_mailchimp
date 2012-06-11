@@ -1,9 +1,9 @@
 class Spree::SubscriptionsController < Spree::BaseController
-  def hominid
-    @hominid ||= Hominid::Base.new({:api_key => Spree::Config.get(:mailchimp_api_key)})
-  end
+  before_filter :load_config
 
   def create
+    puts ">>>>>>>>> #{@config[:mailchimp_api_key]}"
+    hominid ||= Hominid::API.new(@config[:mailchimp_api_key])
     @errors = []
 
     if params[:email].blank?
@@ -12,27 +12,23 @@ class Spree::SubscriptionsController < Spree::BaseController
       @errors << t('invalid_email_address')
     else
       begin
-        self.class.benchmark "Checking if address exists and/or is valid" do
-          @mc_member = hominid.member_info(Spree::Config.get(:mailchimp_list_id), params[:email])
+        self.class.benchmark "Adding mailchimp subscriber" do
+          puts "before Sync"
+          puts ">>>> #{Spree::MailChimpSync::Sync::mc_subscription_opts}"
+          hominid.list_subscribe(@config[:mailchimp_list_id], params[:email], {})
+          puts "after Sync"
         end
-      rescue Hominid::ListError => e
-      end
-
-      if @mc_member
-        @errors << t('that_address_is_already_subscribed')
-      else
-        begin
-          self.class.benchmark "Adding mailchimp subscriber" do
-            hominid.subscribe(Spree::Config.get(:mailchimp_list_id), params[:email], {}, MailChimpSync::Sync::mc_subscription_opts)
-          end
-        rescue Hominid::ValidationError => e
-          @errors << t('invalid_email_address')
-        end
+      rescue Hominid::APIError => e
+        @errors << e
       end
     end
 
-    respond_to do |wants|
-      wants.js
-    end
+    @message = @errors.any? ? {:error => @errors.join(' / ')} : {:success => t(:you_have_been_subscribed)}
+
+    redirect_to :back, :flash => @message
+  end
+
+  def load_config
+    @config = Spree::MailChimpConfiguration.new
   end
 end

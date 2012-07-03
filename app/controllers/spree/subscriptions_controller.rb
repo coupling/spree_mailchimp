@@ -2,9 +2,9 @@ class Spree::SubscriptionsController < Spree::BaseController
   before_filter :load_config
 
   def create
+    @errors = []
     if @config[:mailchimp_api_key]
       hominid ||= Hominid::API.new(@config[:mailchimp_api_key])
-      @errors = []
 
       if params[:email].blank?
         @errors << t('missing_email')
